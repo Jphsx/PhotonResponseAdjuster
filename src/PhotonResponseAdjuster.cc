@@ -3,7 +3,7 @@
 PhotonResponseAdjuster aPhotonResponseAdjuster ;
 
 PhotonResponseAdjuster::PhotonResponseAdjuster() : Processor("PhotonResponseAdjuster") {
-
+  //test comment
   // modify processor description
   _description = "Adjusts Photons from filtered pandora pfos collection" ;
 
