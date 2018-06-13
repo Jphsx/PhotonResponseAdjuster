@@ -397,10 +397,8 @@ void PhotonResponseAdjuster::processEvent( LCEvent * evt ) {
 			//if this is not a photon or track,
 			//add a covariance matrix for E,theta,phi
 				calRecoPart->setCovMatrix(getNewCovMatrix(_pfovec.at(i)->getType(), _pfovec.at(i)->getEnergy()) );
-				
-				calreccol->addElement( calRecoPart );
 			}
-				
+			calreccol->addElement( calRecoPart );	
 			
 
 		}//end else other neutrals
