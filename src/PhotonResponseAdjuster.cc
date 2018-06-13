@@ -203,6 +203,24 @@ double PhotonResponseAdjuster::safeAcos(double x){
 	else if (x > 1.0) x = 1.0 ;
 	return acos (x) ;
  }
+float* PhotonResponseAdjuster::getNewCovMatrix(int pdg, double Energy){
+	
+	float* cov = new float[6];
+	float E = (float)Energy;
+	//initialize the entire matrix to 0s
+	for(int i=0; i<6; i++){
+		cov[i]=0.0;
+	}
+	if(pdg == 22){	//covariant terms are 0
+		cov[0]=(0.18*std::sqrt(E) );
+      
+	}else{
+		cov[0]=(0.55*std::sqrt(E) );
+	}
+	cov[2]=(0.001/std::sqrt(E) );
+	cov[5]=(0.001/std::sqrt(E) );
+	return cov;
+}
 
 int PhotonResponseAdjuster::getCorrespondingMCParticleIndex(TLorentzVector rec){
 
@@ -278,30 +296,36 @@ void PhotonResponseAdjuster::processEvent( LCEvent * evt ) {
   //FindMCParticles(evt);
    FindPFOs(evt);
    if(_smearAngles) FindMCParticles(evt);
-//  TRandom3* rng = new TRandom3();
+
   // Make a new vector of particles
   LCCollectionVec * calreccol = new LCCollectionVec(LCIO::RECONSTRUCTEDPARTICLE);
   //fastreccol->setSubset(true);
  calreccol->setSubset(true);
+
   streamlog_out(MESSAGE) << " start processing event " << std::endl;
 
+	//set up new particle
 	double oldE, newE;
 	double* newmom = new double[3];
 	const double* oldmom;
 	ParticleIDImpl* newPDG = new ParticleIDImpl();
-	newPDG->setPDG(22);
-	newPDG->setLikelihood(1.0);
+	//newPDG->setPDG(22);
+	//newPDG->setLikelihood(1.0);
+
+
 
 	for(unsigned int i=0; i<_pfovec.size(); i++){
-		if(_pfovec.at(i)->getType() == 22){
-			ReconstructedParticleImpl* calRecoPart = new ReconstructedParticleImpl();
-			oldE = _pfovec.at(i)->getEnergy();
+		ReconstructedParticleImpl* calRecoPart = new ReconstructedParticleImpl();
 
+		if(_pfovec.at(i)->getType() == 22){
+			//set photon specific pdg stuff
+			newPDG->setPDG(22);
+			newPDG->setLikelihood(1.0);
+
+			//calculate adjusted energy and momentum
+			oldE = _pfovec.at(i)->getEnergy();
 			newE = _energyScaleFactor*oldE; 
-			
 			oldmom = _pfovec[i]->getMomentum();
-		//	for(int i=0; i
-		//	newmom = oldmom;
 
 			//use old unit vector and multiply by new energy
 			newmom[0] = oldmom[0]/oldE;
@@ -312,8 +336,15 @@ void PhotonResponseAdjuster::processEvent( LCEvent * evt ) {
 			newmom[1] = newmom[1]*newE;
 			newmom[2] = newmom[2]*newE;
 
-			//fix the photon direction based on MC direction
-			//use the already semi calibrated photon for better matching
+			/************************
+			fix the photon direction based on MC 				
+			direction use the already semi calibrated 				
+			photon for better matching
+
+			This section was for addressing the errors `			
+			photon angle reconstruction, the bug has
+			since been fixed.  This function really should really have its own method
+			*************************/
 			if(_smearAngles){
 				std::cout<<"Smearing photon direction using MC direction"<<std::endl;
 				TLorentzVector gamma;
@@ -331,15 +362,16 @@ void PhotonResponseAdjuster::processEvent( LCEvent * evt ) {
 					newmom[2] = newdirection[2]*newE;		
 					TLorentzVector v;
 					v.SetPxPyPzE(newmom[0],newmom[1],newmom[2],newE);
-//					std::cout<<"old Theta,Phi "<< gamma.Theta() << " " << gamma.Phi() <<std::endl;
-//					std::cout<<"new Theta,Phi "<< v.Theta() <<" "<< v.Phi() <<std::endl;
-//					std::cout<<"mc  Theta,Phi "<<mcgamma.Theta() <<" "<<mcgamma.Phi() <<std::endl;
+					
 				}
-			}	
+			}//end angle smearing	
 
+			//set up the recoparticle and add it to the
+			//collection
 			calRecoPart->setMomentum(newmom);
 			calRecoPart->setEnergy(newE);
-			//COV MATRIX????
+			//give the reco part an E,theta,phi cov matrix
+			calRecoPart->setCovMatrix(getNewCovMatrix(22, newE) );
 			calRecoPart->setMass(0.0);
 			calRecoPart->setCharge(0.0);
 			calRecoPart->addParticleID(newPDG);
@@ -348,41 +380,76 @@ void PhotonResponseAdjuster::processEvent( LCEvent * evt ) {
 
 		        calreccol->addElement( calRecoPart );
 			
-			if(_printing>1){
-		//		double theta,phi;
-		//		theta = safeAcos(oldmom[2]/oldE);
-		//		phi = safeAcos(oldmom[0]/oldE * std::sin(theta));
-		 		TLorentzVector gold,gnew;
-				gold.SetPxPyPzE(oldmom[0],oldmom[1],oldmom[2],oldE);
-				gnew.SetPxPyPzE(newmom[0],newmom[1],newmom[2],newE);
-				std::cout<<"Event No. :"<< _nEvt << std::endl;
-				std::cout<<"Old Photon (Px,Py,Pz,E): "<< oldmom[0] <<" "<<oldmom[1]<<" "<<oldmom[2]<<" "<<oldE<<std::endl;
-				std::cout<<"Old Photon (E,Theta,Phi): "<< gold.E()<< " "<< gold.Theta() << " " << gold.Phi() << std::endl;
+		}//end if 22
+		else{	//if its not a photon copy over old elements
+			newPDG->setPDG(_pfovec.at(i)->getType());
+			newPDG->setLikelihood(1.0);
 
-			//	theta = safeAcos(newmom[2]/newE);
-			//	phi = safeAcos(newmom[0]/newE * std::sin(theta));
-				std::cout<<"New Photon (Px,Py,Pz,E): "<< newmom[0] <<" "<<newmom[1]<<" "<<newmom[2]<<" "<<newE<<std::endl;
-				std::cout<<"New Photon (E,Theta,Phi): "<< gnew.E()<< " "<< gnew.Theta() << " "<< gnew.Phi() << std::endl; 
+			calRecoPart->setMomenum(_pfovec.at(i)->getMomentum());
+			calRecoPart->setEnergy(_pfovec.at(i)->getEnergy());
+			calRecoPart->setMass(_pfovec.at(i)->getMass());
+			calRecoPart->addParticleID(newPDG);
+			calRecoPart->setParticleIDUsed(newPDG);
+			calRecoPart->setType(_pfovec.at(i)->getType());
+			
+			//if its not a photon but a different neutral particle make a new covariance matrix
+			 if(_pfovec.at(i)->getCharge() == 0){
+			//if this is not a photon or track,
+			//add a covariance matrix for E,theta,phi
+				calRecoPart->setCovMatrix(getNewCovMatrix(_pfovec.at(i)->getType(), _pfovec.at(i)->getEnergy()) );
+				
+				calreccol->addElement( calRecoPart );
+			}
+				
+			
+
+		}//end else other neutrals
+
+
+			//print out the changes to see the changes
+		if(_printing>1){
+		
+		 	TLorentzVector gold,gnew;
+			gold.SetPxPyPzE(oldmom[0],oldmom[1],oldmom[2],oldE);
+			gnew.SetPxPyPzE(newmom[0],newmom[1],newmom[2],newE);
+
+			std::cout<<"Event No. :"<< _nEvt << std::endl;
+			std::cout<<"Adjusted Particle Pdg: "<< calRecoPart->getType() << std::endl;
+			std::cout<<"Old (Px,Py,Pz,E): "<<
+			oldmom[0] <<" "<<
+			oldmom[1] <<" "<<
+			oldmom[2] <<" "<<
+			oldE<<std::endl;
+
+			std::cout<<"Old (E,Theta,Phi): "<< 				
+			gold.E()<< " "<< 
+			gold.Theta() << " " << 
+			gold.Phi() << std::endl;
+
+			std::cout<<"New (Px,Py,Pz,E): "<< 
+			newmom[0] <<" "<<
+			newmom[1]<<" "<<
+			newmom[2]<<" "<<
+			newE<<std::endl;
+
+			std::cout<<"New (E,Theta,Phi): "<<
+			gnew.E()<< " "<<
+			gnew.Theta() << " "<<
+			gnew.Phi() << std::endl; 
 			}
 			
-		}
 		
-	}	
+		
+	}//end pfovec loop	
  
   _nEvt++;
 
   // Add new collection to event
   evt->addCollection( calreccol , _outputParticleCollectionName.c_str() );
 
-//  std::cout << "======================================== event " << _nEvt << std::endl ;
+
  
 }
-
-
-//void PhotonResponseAdjuster::check( LCEvent * evt ) {
-
-//}
-
 
 void PhotonResponseAdjuster::end(){
 
