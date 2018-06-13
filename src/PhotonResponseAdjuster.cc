@@ -385,7 +385,7 @@ void PhotonResponseAdjuster::processEvent( LCEvent * evt ) {
 			newPDG->setPDG(_pfovec.at(i)->getType());
 			newPDG->setLikelihood(1.0);
 
-			calRecoPart->setMomenum(_pfovec.at(i)->getMomentum());
+			calRecoPart->setMomentum(_pfovec.at(i)->getMomentum());
 			calRecoPart->setEnergy(_pfovec.at(i)->getEnergy());
 			calRecoPart->setMass(_pfovec.at(i)->getMass());
 			calRecoPart->addParticleID(newPDG);
