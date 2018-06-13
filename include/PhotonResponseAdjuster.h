@@ -52,6 +52,10 @@ using namespace lcio ;
   double* resimulateDirection(TLorentzVector mcgamma);
   double safeAcos(double x);
 
+//set the ReconstructedParticle* covMatrix with he E,theta,phi
+//parameterization (lower diagonal)
+  float* getNewCovMatrix(int pdg, double Energy);
+
   private:
   int _nRun{};
   int _nEvt{};
@@ -74,4 +78,6 @@ using namespace lcio ;
   double _allowedEnergyDeviation{};
   double _allowedAngularDeviation{};
   std::string m_rootFile{};
+
+
 };
