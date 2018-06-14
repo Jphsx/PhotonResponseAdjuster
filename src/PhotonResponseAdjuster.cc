@@ -384,8 +384,13 @@ void PhotonResponseAdjuster::processEvent( LCEvent * evt ) {
 		else{	//if its not a photon copy over old elements
 			newPDG->setPDG(_pfovec.at(i)->getType());
 			newPDG->setLikelihood(1.0);
-
-			calRecoPart->setMomentum(_pfovec.at(i)->getMomentum());
+			//manually copy over the momentum, the array
+			// needs its own space on the heap
+			oldmom = _pfovec.at(i)->getMomentum();
+			for(int i=0; i<3; i++){
+				newmom[i] = oldmom[i]
+			}
+			calRecoPart->setMomentum(newmom);
 			calRecoPart->setEnergy(_pfovec.at(i)->getEnergy());
 			calRecoPart->setMass(_pfovec.at(i)->getMass());
 			calRecoPart->addParticleID(newPDG);
