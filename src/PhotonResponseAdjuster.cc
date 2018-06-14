@@ -391,8 +391,11 @@ void PhotonResponseAdjuster::processEvent( LCEvent * evt ) {
 				newmom[i] = oldmom[i];
 			}
 			calRecoPart->setMomentum(newmom);
-			calRecoPart->setEnergy(_pfovec.at(i)->getEnergy());
+			oldE = _pfovec.at(i)->getEnergy();
+			newE = oldE;
+			calRecoPart->setEnergy(newE);
 			calRecoPart->setMass(_pfovec.at(i)->getMass());
+			calRecoPart->setCharge(_pfovec.at(i)->getCharge());
 			calRecoPart->addParticleID(newPDG);
 			calRecoPart->setParticleIDUsed(newPDG);
 			calRecoPart->setType(_pfovec.at(i)->getType());
