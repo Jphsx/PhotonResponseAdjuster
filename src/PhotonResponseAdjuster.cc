@@ -388,7 +388,7 @@ void PhotonResponseAdjuster::processEvent( LCEvent * evt ) {
 			// needs its own space on the heap
 			oldmom = _pfovec.at(i)->getMomentum();
 			for(int i=0; i<3; i++){
-				newmom[i] = oldmom[i]
+				newmom[i] = oldmom[i];
 			}
 			calRecoPart->setMomentum(newmom);
 			calRecoPart->setEnergy(_pfovec.at(i)->getEnergy());
