@@ -92,7 +92,7 @@ void PhotonResponseAdjuster::processRunHeader( LCRunHeader* run) {
 bool PhotonResponseAdjuster::FindPFOs( LCEvent* evt ) {
 
   bool tf = false;
-std::cout<<" here? "<<std::endl;
+//std::cout<<" here? "<<std::endl;
   // clear old vector
   _pfovec.clear();
   typedef const std::vector<std::string> StringVec ;
@@ -213,12 +213,15 @@ float* PhotonResponseAdjuster::getNewCovMatrix(int pdg, double Energy){
 	}
 	if(pdg == 22){	//covariant terms are 0
 		cov[0]=(0.18*std::sqrt(E) );
+		cov[0]=cov[0]*cov[0];
       
 	}else{
 		cov[0]=(0.55*std::sqrt(E) );
 	}
 	cov[2]=(0.001/std::sqrt(E) );
+	cov[2]=(cov[2]*cov[2]);
 	cov[5]=(0.001/std::sqrt(E) );
+	cov[5]=(cov[5]*cov[5]);
 	return cov;
 }
 
