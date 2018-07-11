@@ -303,7 +303,7 @@ void PhotonResponseAdjuster::processEvent( LCEvent * evt ) {
   // Make a new vector of particles
   LCCollectionVec * calreccol = new LCCollectionVec(LCIO::RECONSTRUCTEDPARTICLE);
   //fastreccol->setSubset(true);
- calreccol->setSubset(true);
+ //calreccol->setSubset(true);
 
   streamlog_out(MESSAGE) << " start processing event " << std::endl;
 
