@@ -461,7 +461,7 @@ void PhotonResponseAdjuster::adjustPhoton( LCCollectionVec* calreccol){
 
  
 }
-}
+
 
 
 void PhotonResponseAdjuster::end(){
