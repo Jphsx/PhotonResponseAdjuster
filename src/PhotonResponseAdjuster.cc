@@ -205,10 +205,12 @@ double PhotonResponseAdjuster::safeAcos(double x){
  }
 float* PhotonResponseAdjuster::getNewCovMatrix(int pdg, double Energy){
 	
-	float* cov = new float[6];
+	//float* cov = new float[6];
+	float* cov = new float[10];
+	//fill it to mimick pxpypze for outputting in lCIO
 	float E = (float)Energy;
 	//initialize the entire matrix to 0s
-	for(int i=0; i<6; i++){
+	for(int i=0; i<10; i++){
 		cov[i]=0.0;
 	}
 	if(pdg == 22){	//covariant terms are 0
