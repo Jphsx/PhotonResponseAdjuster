@@ -314,7 +314,7 @@ void PhotonResponseAdjuster::processEvent( LCEvent * evt ) {
 	double oldE, newE;
 	double* newmom = new double[3];
 	const double* oldmom;
-	ParticleIDImpl* newPDG = new ParticleIDImpl();
+	//ParticleIDImpl* newPDG = new ParticleIDImpl();
 	//newPDG->setPDG(22);
 	//newPDG->setLikelihood(1.0);
 
@@ -325,8 +325,8 @@ void PhotonResponseAdjuster::processEvent( LCEvent * evt ) {
 
 		if(_pfovec.at(i)->getType() == 22){
 			//set photon specific pdg stuff
-			newPDG->setPDG(22);
-			newPDG->setLikelihood(1.0);
+		//	newPDG->setPDG(22);
+		//	newPDG->setLikelihood(1.0);
 
 			//calculate adjusted energy and momentum
 			oldE = _pfovec.at(i)->getEnergy();
@@ -380,16 +380,16 @@ void PhotonResponseAdjuster::processEvent( LCEvent * evt ) {
 			calRecoPart->setCovMatrix(getNewCovMatrix(22, newE) );
 			calRecoPart->setMass(0.0);
 			calRecoPart->setCharge(0.0);
-			calRecoPart->addParticleID(newPDG);
-			calRecoPart->setParticleIDUsed(newPDG);
+			//calRecoPart->addParticleID(newPDG);
+			//calRecoPart->setParticleIDUsed(newPDG);
 			calRecoPart->setType(22);
 
 		        calreccol->addElement( calRecoPart );
 			
 		}//end if 22
 		else{	//if its not a photon copy over old elements
-			newPDG->setPDG(_pfovec.at(i)->getType());
-			newPDG->setLikelihood(1.0);
+		//	newPDG->setPDG(_pfovec.at(i)->getType());
+		//	newPDG->setLikelihood(1.0);
 			//manually copy over the momentum, the array
 			// needs its own space on the heap
 			oldmom = _pfovec.at(i)->getMomentum();
@@ -402,8 +402,8 @@ void PhotonResponseAdjuster::processEvent( LCEvent * evt ) {
 			calRecoPart->setEnergy(newE);
 			calRecoPart->setMass(_pfovec.at(i)->getMass());
 			calRecoPart->setCharge(_pfovec.at(i)->getCharge());
-			calRecoPart->addParticleID(newPDG);
-			calRecoPart->setParticleIDUsed(newPDG);
+			//calRecoPart->addParticleID(newPDG);
+			//calRecoPart->setParticleIDUsed(newPDG);
 			calRecoPart->setType(_pfovec.at(i)->getType());
 			
 			//if its not a photon but a different neutral particle make a new covariance matrix
@@ -458,6 +458,7 @@ void PhotonResponseAdjuster::processEvent( LCEvent * evt ) {
 
  // Add new collection to event
 //if pfo vec size >0?
+  
   evt->addCollection( calreccol , _outputParticleCollectionName.c_str() );
 
  
