@@ -305,7 +305,7 @@ void PhotonResponseAdjuster::processEvent( LCEvent * evt ) {
   // Make a new vector of particles
   LCCollectionVec * calreccol = new LCCollectionVec(LCIO::RECONSTRUCTEDPARTICLE);
   //fastreccol->setSubset(true);
- calreccol->setSubset(true);
+ //calreccol->setSubset(true);
 
   streamlog_out(MESSAGE) << " start processing event " << std::endl;
 	
@@ -457,6 +457,7 @@ void PhotonResponseAdjuster::processEvent( LCEvent * evt ) {
   _nEvt++;
 
  // Add new collection to event
+//if pfo vec size >0?
   evt->addCollection( calreccol , _outputParticleCollectionName.c_str() );
 
  
