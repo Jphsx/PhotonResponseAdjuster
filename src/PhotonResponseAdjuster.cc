@@ -308,12 +308,8 @@ void PhotonResponseAdjuster::processEvent( LCEvent * evt ) {
  //calreccol->setSubset(true);
 
   streamlog_out(MESSAGE) << " start processing event " << std::endl;
-	this->adjustPhoton(calreccol);
-	 // Add new collection to event
-  evt->addCollection( calreccol , _outputParticleCollectionName.c_str() );
-}
+	
 
-void PhotonResponseAdjuster::adjustPhoton( LCCollectionVec* calreccol){
 	//set up new particle
 	double oldE, newE;
 	double* newmom = new double[3];
@@ -460,7 +456,8 @@ void PhotonResponseAdjuster::adjustPhoton( LCCollectionVec* calreccol){
  
   _nEvt++;
 
- 
+ // Add new collection to event
+  evt->addCollection( calreccol , _outputParticleCollectionName.c_str() );
 
  
 }

@@ -45,7 +45,7 @@ using namespace lcio ;
   /** Called after data processing for clean up.
    */
   virtual void end() ;
-	void adjustPhoton( LCCollectionVec* calreccol);
+	
 
   bool FindMCParticles( LCEvent* evt ); 
   bool FindPFOs( LCEvent* evt );
